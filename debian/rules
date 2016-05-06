@@ -1,0 +1,33 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --buildsystem=cmake --with python3
+
+# Two independent buildsystems share this source package: CMake for the
+# server/plugins/headers, pybuild for the pure-Python certbot-dracon/ plugin.
+# dh only drives one buildsystem's dh_auto_* per invocation, so every step
+# below runs both explicitly instead of relying on the "%" default.
+
+override_dh_auto_configure:
+	dh_auto_configure --buildsystem=cmake -- \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DENABLE_TESTS=OFF
+	dh_auto_configure --buildsystem=pybuild --sourcedirectory=certbot-dracon
+
+override_dh_auto_build:
+	dh_auto_build --buildsystem=cmake
+	dh_auto_build --buildsystem=pybuild --sourcedirectory=certbot-dracon
+
+override_dh_auto_test:
+	# DraconServerTests starts a real dracon and binds :8080/:8443, which
+	# isn't appropriate for a package build chroot; upstream CI
+	# (.github/workflows/main.yml, Dockerfile) already runs the full suite.
+	# certbot-dracon has no test suite of its own yet.
+
+override_dh_auto_install:
+	dh_auto_install --buildsystem=cmake
+	dh_auto_install --buildsystem=pybuild --sourcedirectory=certbot-dracon --destdir=debian/tmp
+
+override_dh_auto_clean:
+	dh_auto_clean --buildsystem=cmake
+	dh_auto_clean --buildsystem=pybuild --sourcedirectory=certbot-dracon

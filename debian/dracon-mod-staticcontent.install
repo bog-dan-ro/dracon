@@ -1,0 +1,4 @@
+usr/lib/dracon/plugins/libstatic_content.so
+etc/dracon/static_files.conf
+usr/lib/tmpfiles.d/dracon-staticcontent.conf
+usr/share/dracon/www

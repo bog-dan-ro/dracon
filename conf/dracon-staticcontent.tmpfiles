@@ -1,0 +1,6 @@
+# The document root the staticContent plugin serves "/" from (see the paths
+# section of static_files.conf). The server only ever reads from it, but it is
+# owned by dracon so that the directory is there before the first request and
+# so that certbot-dracon can drop its HTTP-01 challenge files into
+# /var/www/.well-known/acme-challenge/.
+d /var/www 0755 dracon dracon -

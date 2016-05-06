@@ -1,0 +1,24 @@
+dracon (1.0-1) unstable; urgency=medium
+
+  * Initial Debian packaging, split into three binary packages:
+    - dracon-server: the daemon, its systemd service and sysusers.d entry,
+      and the core configuration (server.conf and friends).
+    - dracon-mod-staticcontent: the bundled static file plugin and its
+      static_files.conf.
+    - libdracon-dev: the header-only plugin API and the CMake package
+      config, for building plugins against an installed Dracon.
+  * The packaged server.conf (debian/patches) defaults to port 80, with
+    HTTPS configured for 443 but left disabled since no certificate is
+    shipped; dracon.service already carries CAP_NET_BIND_SERVICE for it.
+  * dracon-mod-staticcontent ships the default landing page from www/ as
+    /usr/share/dracon/www and its postinst copies it into /var/www when that
+    directory is missing or still empty, so a fresh install answers "/" with
+    something instead of a 404. An administrator's own content is never
+    touched: the copy is skipped as soon as /var/www holds anything.
+  * Added python3-certbot-dracon (built from certbot-dracon/ via pybuild
+    alongside the CMake build): a combined Certbot authenticator and
+    installer plugin, so "certbot run --configurator dracon -d example.com"
+    obtains a certificate, installs it into /etc/dracon, enables HTTPS in
+    server.conf, and restarts dracon.service.
+
+ -- BogDan Vatra <bogdan@kde.org>  Fri, 04 Sep 2026 17:03:47 +0300

@@ -1,0 +1,36 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: dracon
+Upstream-Contact: BogDan Vatra <bogdan@kde.org>
+Source: https://github.com/bog-dan-ro/dracon
+
+Files: *
+Copyright: 2018-2026 BogDan Vatra <bogdan@kde.org>
+License: AGPL-3+
+
+Files: include/dracon/*
+Copyright: 2018-2026 BogDan Vatra <bogdan@kde.org>
+License: AGPL-3+
+Comment:
+ As a special exception (see EXCEPTION.AGPL in the source), the copyright
+ holders give permission to create plugins based on these headers,
+ regardless of the license terms of such plugins, and to copy and
+ distribute them under terms of your choice. The AGPL applies only to
+ these files themselves.
+
+Files: debian/*
+Copyright: 2026 BogDan Vatra <bogdan@kde.org>
+License: AGPL-3+
+
+License: AGPL-3+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation, either version 3 of the
+ License, or (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU Affero General Public License for more details.
+ .
+ On Debian systems, the complete text of the GNU Affero General Public
+ License version 3 can be found in "/usr/share/common-licenses/AGPL-3".

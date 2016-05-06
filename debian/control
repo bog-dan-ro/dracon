@@ -1,0 +1,93 @@
+Source: dracon
+Section: web
+Priority: optional
+Maintainer: BogDan Vatra <bogdan@kde.org>
+Build-Depends: debhelper-compat (= 13),
+               dh-sequence-installsysusers,
+               cmake (>= 3.28),
+               libboost-coroutine-dev (>= 1.70),
+               libboost-iostreams-dev (>= 1.70),
+               libboost-log-dev (>= 1.70),
+               libboost-program-options-dev (>= 1.70),
+               libssl-dev (>= 1.1),
+               dh-python,
+               pybuild-plugin-pyproject,
+               python3-all:native,
+               python3-setuptools
+Standards-Version: 4.7.2
+Rules-Requires-Root: no
+Homepage: https://github.com/bog-dan-ro/dracon
+
+Package: dracon-server
+Architecture: linux-any
+Depends: ${shlibs:Depends},
+         ${misc:Depends}
+Recommends: dracon-mod-staticcontent
+Description: small, fast HTTP/HTTPS server for Linux
+ Dracon is a small, fast HTTP/HTTPS server for Linux, written from scratch
+ in C++23 on top of epoll and Boost.Coroutine2 (no Boost.Asio, no
+ framework). The server itself only speaks HTTP: every request is
+ answered by a plugin, a shared library loaded at start up. Each
+ connection runs inside its own coroutine, so a handler is written as
+ plain sequential code while every read and write that would block
+ yields back to the event loop.
+ .
+ This package contains the server daemon, its systemd service, and the
+ default configuration: it listens on port 80 out of the box (the systemd
+ unit carries CAP_NET_BIND_SERVICE for that), with HTTPS on port 443
+ configured but disabled since no certificate is shipped. It has no
+ bundled content-serving plugin; install dracon-mod-staticcontent (or a
+ plugin of your own) to actually answer requests.
+ .
+ Dracon is beta software: it has no stable plugin API/ABI yet.
+
+Package: dracon-mod-staticcontent
+Architecture: linux-any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         dracon-server (= ${binary:Version})
+Description: static file plugin for the Dracon HTTP server
+ This plugin for the Dracon HTTP server (see dracon-server) serves plain
+ files from the directories listed in static_files.conf, memory mapping
+ them through an LRU cache. It also supports the traditional
+ /~user/public_html mapping and per-path custom response headers.
+ .
+ The package also ships a default landing page in /usr/share/dracon/www,
+ which is copied into the document root /var/www on installation if that
+ directory does not exist yet or is still empty.
+ .
+ Dracon plugins have no stable ABI across versions, so this package is
+ tied to an exact dracon-server build.
+
+Package: libdracon-dev
+Section: libdevel
+Architecture: linux-any
+Depends: ${misc:Depends},
+         dracon-server (= ${binary:Version}),
+         libboost-log-dev (>= 1.70)
+Description: development files for Dracon plugins
+ Dracon (see dracon-server) answers every HTTP request through a plugin: a
+ shared library loaded with dlopen at start up. This package provides the
+ header-only plugin API (requests and responses, streams and chunked
+ output, RESTful routing, worker threads for slow work) and the CMake
+ package config needed to build a plugin against an installed Dracon with
+ find_package(Dracon).
+ .
+ Dracon is beta software: it has no stable plugin API/ABI yet, so a
+ plugin built against one version is not guaranteed to load into another.
+
+Package: python3-certbot-dracon
+Architecture: all
+Depends: ${python3:Depends},
+         ${misc:Depends},
+         python3-certbot
+Recommends: dracon-server, dracon-mod-staticcontent
+Description: Certbot plugin for the Dracon HTTP server
+ A combined Certbot authenticator and installer for Dracon: it answers
+ HTTP-01 challenges by dropping files where Dracon's staticContent plugin
+ already serves "/", then installs the issued certificate into
+ /etc/dracon, turns HTTPS on in server.conf, and restarts dracon.service.
+ .
+ Use it with:
+ .
+   certbot run --configurator dracon -d example.com

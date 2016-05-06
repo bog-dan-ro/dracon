@@ -1,0 +1,45 @@
+#!/bin/sh
+# postinst script for dracon-mod-staticcontent
+
+set -e
+
+DOCROOT=/var/www
+SEED=/usr/share/dracon/www
+
+case "$1" in
+    configure)
+        # /var/www is the document root static_files.conf serves "/" from. It
+        # is the administrator's directory, not ours: dpkg never ships files
+        # into it, so seed it with the default landing page only while it is
+        # still missing or empty, and never touch it again once it holds
+        # anything at all.
+        if [ -d "$SEED" ] && \
+           ! find "$DOCROOT" -mindepth 1 -print -quit 2>/dev/null | grep -q .; then
+            # dracon-staticcontent.tmpfiles normally creates the directory, but
+            # systemd-tmpfiles is not guaranteed to have run (or to exist) here.
+            if [ ! -d "$DOCROOT" ]; then
+                mkdir -p "$DOCROOT"
+                chmod 0755 "$DOCROOT"
+                # The tmpfiles.d snippet gives it to dracon so that
+                # certbot-dracon can write .well-known/acme-challenge/ into it;
+                # match that here for the systemd-less case.
+                if getent passwd dracon >/dev/null; then
+                    chown dracon:dracon "$DOCROOT"
+                fi
+            fi
+            cp -a "$SEED/." "$DOCROOT/"
+        fi
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

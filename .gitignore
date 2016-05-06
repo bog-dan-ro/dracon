@@ -1,0 +1,20 @@
+build
+.qtcreator
+
+# debhelper / dpkg-buildpackage build products
+obj-*/
+debian/.debhelper/
+debian/tmp/
+debian/dracon-server/
+debian/dracon-mod-staticcontent/
+debian/libdracon-dev/
+debian/python3-certbot-dracon/
+debian/*.debhelper.log
+debian/*.debhelper
+debian/*.substvars
+debian/debhelper-build-stamp
+debian/files
+.pybuild/
+certbot-dracon/build/
+certbot-dracon/src/*.egg-info/
+.pc/

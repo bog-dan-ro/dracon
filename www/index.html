@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dracon</title>
+<meta name="description" content="Dracon is a small, fast HTTP/HTTPS server for Linux, written from scratch in C++23 on epoll and Boost.Coroutine2.">
+<link rel="icon" href="logo.png">
+<style>
+:root {
+  --bg:      #ffffff;
+  --panel:   #f6f6f4;
+  --ink:     #1c1e22;
+  --muted:   #5f6672;
+  --rule:    #d8d8d4;
+  --link:    #1a5fb4;
+  --accent:  #c9880f;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:     #16181c;
+    --panel:  #1e2126;
+    --ink:    #dfe2e6;
+    --muted:  #949ba6;
+    --rule:   #333941;
+    --link:   #74a9e8;
+    --accent: #f0a81e;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 3rem 1.25rem 4rem;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+}
+
+main { max-width: 43rem; margin: 0 auto; }
+
+/* ---- masthead ---- */
+
+header { text-align: center; }
+
+header img {
+  width: 160px; height: 160px;
+  display: block; margin: 0 auto .5rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.6rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+}
+
+.tagline {
+  margin: .35rem 0 0;
+  color: var(--muted);
+  font-size: 1.02rem;
+}
+
+nav {
+  margin: 1.4rem 0 0;
+  text-align: center;
+  font-size: .93rem;
+}
+
+nav a { margin: 0 .1rem; }
+
+nav span {
+  color: var(--rule);
+  margin: 0 .45rem;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 1.4rem 0 2rem;
+}
+
+/* ---- text ---- */
+
+a { color: var(--link); }
+a:hover { text-decoration: none; }
+
+h2 {
+  font-size: 1.12rem;
+  font-weight: 600;
+  margin: 2.4rem 0 .7rem;
+  padding-bottom: .3rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+p { margin: 0 0 1rem; }
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .92em;
+}
+
+p code, li code, dd code {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: .05em .3em;
+}
+
+pre {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: 3px;
+  padding: .9rem 1rem;
+  margin: 0 0 1rem;
+  overflow-x: auto;
+  font-size: .88rem;
+  line-height: 1.55;
+}
+
+pre .c { color: var(--muted); }
+
+/* ---- at a glance ---- */
+
+dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 8.5rem 1fr;
+  gap: .45rem 1.1rem;
+}
+
+dt { color: var(--muted); }
+dd { margin: 0; }
+
+/* ---- route -> answer map ---- */
+
+.routes {
+  grid-template-columns: max-content 1fr;
+  gap: .35rem 1.2rem;
+  margin: 0 0 1rem;
+  padding: .9rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: 3px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .88rem;
+  overflow-x: auto;
+}
+
+.routes dt { color: var(--ink); }
+.routes dd { color: var(--muted); margin: 0; }
+.routes dd::before { content: "\2192\00a0"; }
+
+@media (max-width: 34rem) {
+  dl { grid-template-columns: 1fr; gap: .1rem; }
+  dd { margin-bottom: .7rem; }
+  h1 { font-size: 2.1rem; }
+
+  /* Stack, so the answer stays on screen instead of scrolling out of reach */
+  .routes { grid-template-columns: 1fr; gap: 0; }
+  .routes dd { margin: 0 0 .6rem; padding-left: .9rem; }
+  .routes dd:last-child { margin-bottom: 0; }
+}
+
+/* ---- footer ---- */
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: .87rem;
+  text-align: center;
+}
+
+footer p { margin: 0 0 .3rem; }
+
+.beta {
+  display: inline-block;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 3px;
+  padding: 0 .4em;
+  font-size: .78rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  vertical-align: 2px;
+}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <img src="logo.png" width="512" height="512"
+       alt="Dracon logo: a steel dragon whose head is an RJ45 plug and whose tail ends in three stripped copper wires">
+  <h1>Dracon</h1>
+  <p class="tagline">A small, fast HTTP/HTTPS server for Linux.</p>
+</header>
+
+<nav>
+  <a href="https://github.com/bog-dan-ro/dracon">Source</a><span>|</span>
+  <a href="https://github.com/bog-dan-ro/dracon/blob/master/docs/README.md">Documentation</a><span>|</span>
+  <a href="https://github.com/bog-dan-ro/dracon/blob/master/docs/writing-a-plugin.md">Plugin API</a><span>|</span>
+  <a href="https://github.com/bog-dan-ro/dracon/blob/master/docs/configuration.md">Configuration</a><span>|</span>
+  <a href="https://github.com/bog-dan-ro/dracon/issues">Issues</a>
+</nav>
+
+<hr>
+
+<p>Dracon is written from scratch in C++23 on top of <code>epoll</code> and
+Boost.Coroutine2, with no Boost.Asio and no framework. The server itself only speaks
+HTTP: every request is answered by a <strong>plugin</strong>, a shared library it
+loads at start up.</p>
+
+<p>Each connection runs inside its own coroutine, so a handler is written as plain
+sequential code while every read and write that would block yields back to the event
+loop. There is one event loop per hardware thread and the connections are spread
+across them, which is what lets a handful of threads carry a very large number of
+concurrent ones.</p>
+
+<h2>A plugin, in full</h2>
+
+<pre><code>#include &lt;dracon/http.h&gt;
+#include &lt;dracon/plugin.h&gt;
+
+PLUGIN_EXPORT uint32_t plugin_order() { return 0; }
+
+PLUGIN_EXPORT dracon::http_session create_session(const dracon::request &amp;req)
+{
+    if (req.url() != "/hello")
+        return {}; <span class="c">// not ours, the server asks the next plugin</span>
+
+    return [](dracon::abstract_stream &amp;stream, dracon::request &amp;req) {
+        stream &gt;&gt; req; <span class="c">// read the rest of the request</span>
+        stream &lt;&lt; dracon::response{200, "hello\n"};
+    };
+}</code></pre>
+
+<p>Drop the resulting <code>.so</code> into the plugins directory and it is live on
+the next start. The whole API is the header-only <code>include/dracon/</code>:
+requests and responses, streams and chunked output, RESTful routing, and worker
+threads for the slow work that must not block an event loop. It is written up in
+<a href="https://github.com/bog-dan-ro/dracon/blob/master/docs/README.md">the
+documentation</a>.</p>
+
+<h2>&hellip;and one with routes</h2>
+
+<p>For an API, <code>restful.h</code> does the URL matching. The handler <em>is</em>
+the session, and the resources a route captures arrive as ordinary arguments in
+the order it declares them, so one function can serve a whole family of routes and
+the shorter ones hand over empty strings.</p>
+
+<pre><code>#include &lt;dracon/plugin.h&gt;
+#include &lt;dracon/restful.h&gt;
+
+dracon::restful_router router{"/api/v1/"};
+
+static void customers(dracon::abstract_stream &amp;stream, dracon::request &amp;req,
+                      const std::string &amp;customer_id = {},
+                      const std::string &amp;license_id = {})
+{
+    stream &gt;&gt; req;
+    stream &lt;&lt; dracon::response{200, "customer " + customer_id +
+                                    ", license " + license_id + "\n"};
+}
+
+PLUGIN_EXPORT bool init_plugin(const std::string &amp;<span class="c">/*conf_dir*/</span>)
+{
+    for (const auto route : {"customers",
+                             "customers/{customer_id}",
+                             "customers/{customer_id}/licenses/{license_id}"})
+        router.create_route(route)-&gt;add_method_handler("GET", customers);
+    return true;
+}
+
+PLUGIN_EXPORT uint32_t plugin_order() { return 0; }
+
+PLUGIN_EXPORT dracon::http_session create_session(const dracon::request &amp;req)
+{
+    return router.create_handler(req.url(), req.method());
+}</code></pre>
+
+<p>Which answers all three, filling in what each one captured:</p>
+
+<dl class="routes">
+  <dt>GET /api/v1/customers</dt>               <dd>customer , license</dd>
+  <dt>GET /api/v1/customers/42</dt>            <dd>customer 42, license</dd>
+  <dt>GET /api/v1/customers/42/licenses/7</dt> <dd>customer 42, license 7</dd>
+</dl>
+
+<p>Ask for <code>const std::optional&lt;std::string&gt; &amp;</code> captures instead
+and a route which does not have one hands over <code>nullopt</code>, which is worth
+the change when &ldquo;this route has no such resource&rdquo; and &ldquo;the resource
+is empty&rdquo; have to read differently:</p>
+
+<pre><code>static void orders(dracon::abstract_stream &amp;stream, dracon::request &amp;req,
+                   const std::optional&lt;std::string&gt; &amp;order_id = {})
+{
+    stream &gt;&gt; req;
+    stream &lt;&lt; dracon::response{200, order_id ? "order " + *order_id + "\n"
+                                            : "all orders\n"};
+}</code></pre>
+
+<p>An unknown method on a known route is answered with a 405 and the right
+<code>Allow</code> header, without the handler being involved. Take a
+<code>dracon::parsed_route</code> instead of the captures when the query strings or
+the allowed methods are wanted too.</p>
+
+<h2>At a glance</h2>
+
+<dl>
+  <dt>Language</dt>   <dd>C++23, GCC&nbsp;&ge;&nbsp;13 or Clang&nbsp;&ge;&nbsp;17</dd>
+  <dt>Built on</dt>   <dd><code>epoll</code>, Boost.Coroutine2, OpenSSL</dd>
+  <dt>Platform</dt>   <dd>Linux only, and unapologetically so</dd>
+  <dt>Handlers</dt>   <dd>Plugins loaded with <code>dlopen</code> at start up</dd>
+  <dt>Concurrency</dt><dd>One coroutine per connection, one event loop per thread</dd>
+  <dt>License</dt>    <dd>AGPL, with an exception so plugins may use any license</dd>
+</dl>
+
+<h2>Installing</h2>
+
+<p>Debian packages build straight out of the tree: <code>dracon-server</code> for the
+daemon, its systemd unit and the default configuration,
+<code>dracon-mod-staticcontent</code> for the plugin serving this page, and
+<code>libdracon-dev</code> for the headers you build your own against. A Certbot
+plugin, <code>python3-certbot-dracon</code>, obtains and installs the certificate:</p>
+
+<pre><code>certbot run --configurator dracon -d example.com</code></pre>
+
+<footer>
+  <p>This page is being served by Dracon.</p>
+  <p><span class="beta">Beta</span> &nbsp;No stable API/ABI yet.</p>
+</footer>
+
+</main>
+</body>
+</html>

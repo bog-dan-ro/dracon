@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "certbot-dracon"
+version = "1.0.0"
+description = "Certbot plugin for the Dracon HTTP server"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{name = "BogDan Vatra", email = "bogdan@kde.org"}]
+classifiers = [
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Programming Language :: Python :: 3",
+]
+dependencies = ["certbot>=2.0.0"]
+
+[project.urls]
+Homepage = "https://github.com/bog-dan-ro/dracon"
+
+[project.entry-points."certbot.plugins"]
+dracon = "certbot_dracon.plugin:Configurator"
+
+[tool.setuptools.packages.find]
+where = ["src"]

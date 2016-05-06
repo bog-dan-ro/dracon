@@ -1,0 +1,3 @@
+# The system user the Dracon service runs as. It owns nothing and cannot log
+# in; it only needs to read the configuration and the files the plugins serve.
+u dracon - "Dracon HTTP server" /nonexistent /usr/sbin/nologin

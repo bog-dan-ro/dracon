@@ -1,0 +1,39 @@
+Building a source package (needed for sbuild, pbuilder, etc.)
+===============================================================
+
+This repository has no separate upstream release tarball: `debian/source/format`
+is "3.0 (quilt)", which needs one at ../dracon_<upstream-version>.orig.tar.gz.
+`dpkg-buildpackage -b` (binary-only, what the top-level instructions use) skips
+this and builds straight from the working tree, but anything that goes through
+`dpkg-source -b` (sbuild, pbuilder, a plain `dpkg-buildpackage` without -b/-S)
+needs the orig tarball to exist first. Generate it from a clean export of the
+tree (do not tar up the working directory directly: local build trees such as
+build/, .pc/, or anything else untracked will make dpkg-source choke trying to
+represent them as part of the source diff):
+
+    version=$(dpkg-parsechangelog -SVersion | sed 's/-[^-]*$//')  # e.g. 1.0
+    git archive --format=tar.gz --prefix=dracon-$version/ \
+        -o ../dracon_$version.orig.tar.gz HEAD -- . ':!debian'
+
+Uncommitted changes are not picked up by `git archive HEAD`; commit first, or
+export from a different treeish (`git stash create`, a temporary commit, ...).
+
+Cross-building for another architecture with sbuild
+-----------------------------------------------------
+
+    sbuild --host=arm64 -d stable
+
+sbuild's unshare backend (the default) creates and caches its own "stable"
+amd64 chroot on first use under ~/.cache/sbuild/, no manual chroot setup
+needed. It builds Architecture: any packages only for a cross build (dracon-
+server, dracon-mod-staticcontent, libdracon-dev); python3-certbot-dracon
+(Architecture: all) is intentionally skipped - build it once natively instead.
+
+Build-Depends architecture qualifiers matter here: debhelper, cmake, dh-python
+and pybuild-plugin-pyproject are all Multi-Arch: foreign and must stay
+unqualified (giving debhelper-compat an explicit :native/:<arch> qualifier
+makes apt fail to resolve the virtual debhelper-compat (= N) package with
+"no choices", even though it resolves fine unqualified). python3-all is
+Multi-Arch: allowed, not foreign, and does need the :native qualifier - without
+it, apt tries to pull in a target-arch python3 that conflicts with the native
+one the build actually runs pybuild/dh_python3 with.
